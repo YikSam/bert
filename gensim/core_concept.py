@@ -39,4 +39,19 @@ new_vec = dictionary.doc2bow(new_doc.lower().split())
 bow_corpus = [dictionary.doc2bow(text) for text in processed_corpus]
 pprint.pprint(bow_corpus)
 
+from gensim import models
+tfidf = models.TfidfModel(bow_corpus)
+
+words = "System minors".lower().split()
+print(tfidf[dictionary.doc2bow(words)])
+
+from gensim import similarities
+
+index = similarities.SparseMatrixSimilarity(tfidf[bow_corpus], num_features=12)
+
+query_document = 'system engineering'.split()
+query_bow = dictionary.doc2bow(query_document)
+sims = index[tfidf[query_bow]]
+print(list(enumerate(sims)))
+
 print('over')
