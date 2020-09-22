@@ -103,8 +103,13 @@ for epoch in range(3):
         end_positions = batch['end_positions'].to(device)
         outputs = model(input_ids, attention_mask=attention_mask, start_positions=start_positions, end_positions=end_positions)
         loss = outputs[0]
+        
+        print(loss.item())
+        
         loss.backward()
         optim.step()
+
+    
 
 model.eval()
 

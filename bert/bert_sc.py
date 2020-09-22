@@ -84,7 +84,12 @@ for epoch in range(3):
         labels = batch['labels'].to(device)
         outputs = model(input_ids, attention_mask=attention_mask, labels=labels)
         loss = outputs[0]
+        
+        print(loss.item())
+        
         loss.backward()
         optim.step()
 
 model.eval()
+
+print("over")
