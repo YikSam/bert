@@ -24,7 +24,7 @@ for text in texts:
         frequency[token] += 1
 
 processed_corpus = [[token for token in text if frequency[token] > 1] for text in texts]
-pprint.pprint(processd_corpus)
+pprint.pprint(processed_corpus)
 
 from gensim import corpora
 
