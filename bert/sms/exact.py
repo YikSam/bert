@@ -1,17 +1,87 @@
-import numpy
+import numpy as np
 import torch
 import pandas as pd
 
-'''df = pd.read_csv('C:\\wwz\\codes\\bert\\bert\\sms\\accident_lead_info.csv').query('dmp_success == 1')
-count = df.shape[0]
+df = pd.read_csv('C:\\ext\\codes\\bert\\bert\\sms\\accident_lead_info.csv').query('dmp_success == 1')
+df1 = pd.DataFrame(columns=['Sentence #', 'Word', 'Tag'])
 
-for i, row in df.iterrows():
+map = {
+    1: 'CMPY',
+    2: 'PLATE',
+    3: 'C_NO',
+    4: 'CUST',
+    5: 'MOBILE',
+    6: 'VTYPE',
+    7: 'LOC'
+}
+
+for index, row in df.iterrows():
 
     text = row['original_sms']
-    print(text) 
-'''
+    print(text)
 
-text = "【人保财险】报案号：RDAA2020420100S0000858，颜廷胜，15040372337，鄂A88888，梅赛德斯-奔驰BJ7204GEL轿车，出险时间：2020-01-013日15:25:58，出险地点：武汉市黄陂区 武湖农场，出险经过：四星  擦到石墩子 本车损 无人伤 现场。请回复：0-不送修，1-送修，2-不确定."
+    words = list(text)
+    tags = np.zeros(len(words))
+
+    if not row['insurance_company'] is np.nan:
+        start = text.find(row['insurance_company'])
+        if start > -1:
+            for i in range(start, start + len(row['insurance_company'])):
+                tags[i] = 1
+
+    if not row['plate'] is np.nan:
+        start = text.find(row['plate'])
+        if start > -1:
+            for i in range(start, start + len(row['plate'])):
+                tags[i] = 2
+    
+    if not row['insurance_case_number'] is np.nan:
+        start = text.find(row['insurance_case_number'])
+        if start > -1:
+            for i in range(start, start + len(row['insurance_case_number'])):
+                tags[i] = 3
+    
+    if not row['customer_name'] is np.nan:
+        start = text.find(row['customer_name'])
+        if start > -1:
+            for i in range(start, start + len(row['customer_name'])):
+                tags[i] = 4
+
+    if not row['mobile'] is np.nan:
+        start = text.find(row['mobile'])
+        if start > -1:
+            for i in range(start, start + len(row['mobile'])):
+                tags[i] = 5
+
+    if not row['vehicle_type'] is np.nan:
+        start = text.find(row['vehicle_type'])
+        if start > -1:
+            for i in range(start, start + len(row['vehicle_type'])):
+                tags[i] = 6
+
+    if not row['vehicle_location'] is np.nan:
+        start = text.find(row['vehicle_location'])
+        if start > -1:
+            for i in range(start, start + len(row['vehicle_location'])):
+                tags[i] = 7
+
+    
+    for i in range(len(list) - 1):
+        name = ""
+        if i == 0:
+            name = "Sentence: {}".format(index + 1)
+
+        tag = map[tags[i]]
+        
+        df1.append(pd.DataFrame({
+            'Sentence #': name,
+            'Word': list[i],
+            'Tag': tag}))
+
+    
+
+
+'''text = "【人保财险】报案号：RDAA2020420100S0000858，颜廷胜，15040372337，鄂A88888，梅赛德斯-奔驰BJ7204GEL轿车，出险时间：2020-01-013日15:25:58，出险地点：武汉市黄陂区 武湖农场，出险经过：四星  擦到石墩子 本车损 无人伤 现场。请回复：0-不送修，1-送修，2-不确定."
 
 #list = ['[CLS]', '【', '人', '保', '财', '险', '】', '报', '案', '号', '：', 'rd', '##aa', '##20', '##20', '##42', '##010', '##0', '##s', '##000', '##08', '##58', '，', '颜', '廷', '胜', '，', '150', '##40', '##37', '##23', '##37', '，', '鄂', 'a8', '##888', '##8', '，', '梅', '赛', '德', '斯', '-', '奔', '驰', 'b', '##j', '##72', '##04', '##ge', '##l', '轿', '车', '，', '出', '险', '时', '间', '：', '2020', '-', '01', '-', '013', '日', '15', ':', '25', ':', '58', '，', '出', '险', '地', '点', '：', '武', '汉', '市', '黄', '陂', '区', '武', '湖', '农', '场', '，', '出', '险', '经', '过', '：', '四', '星', '擦', '到', '石', '墩', '子', '本', '车', '损', '无', '人', '伤', '现', '场', '。', '请', '回', '复', '：', '0', '-', '不', '送', '修', '，', '1', '-', '送', '修', '，', '2', '-', '不', '确', '定', '.', '[SEP]']
 
@@ -155,6 +225,6 @@ while i < len(text):
         else:
             index_loc = 0
 
-    i += 1 
+    i += 1 '''
 
 print(label_cmpy)
