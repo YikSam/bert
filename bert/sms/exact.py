@@ -1,11 +1,14 @@
 import numpy as np
 import torch
 import pandas as pd
+import math
 
-df = pd.read_csv('C:\\ext\\codes\\bert\\bert\\sms\\accident_lead_info.csv').query('dmp_success == 1')
-df1 = pd.DataFrame(columns=['Sentence #', 'Word', 'Tag'])
+#df = pd.read_csv('C:\\ext\\codes\\bert\\bert\\sms\\accident_lead_info.csv').query('dmp_success == 1')
+df = pd.read_csv('C:\\wwz\\codes\\bert\\bert\\sms\\accident_lead_info.csv').query('dmp_success == 1').head(5000)
+df1 = pd.DataFrame()
 
-map = {
+map_tag = {
+    0: 'O',
     1: 'CMPY',
     2: 'PLATE',
     3: 'C_NO',
@@ -15,18 +18,41 @@ map = {
     7: 'LOC'
 }
 
+map_cmpy = {
+    '中华联合': '中华保险',
+    '人保': '人保财险',
+    '人寿': '中国人寿财险',
+    '出口': '太平洋产险',
+    '利宝': '利宝保险',
+    '华安': '鑫华安',
+    '华泰': '华泰保险',
+    '大地': '大地保险',
+    '天安': '天安财险',
+    '太保': '太平洋保险',
+    '太平': '中国太平',
+    '安联': '安联救援',
+    '平安': '中国平安',
+    '永安': '永安财险',
+    '渤海': '渤海保险',
+    '紫金': '太平洋保险',
+    '长安': '长安保险',
+    '阳光': '阳光保险',
+    '鼎和': '鼎和保险'
+}
+
 for index, row in df.iterrows():
 
     text = row['original_sms']
-    print(text)
+    #print(text)
 
     words = list(text)
-    tags = np.zeros(len(words))
+    tags = np.zeros(len(words), dtype=int)
 
     if not row['insurance_company'] is np.nan:
-        start = text.find(row['insurance_company'])
+        insurance_company = map_cmpy[row['insurance_company']]
+        start = text.find(insurance_company)
         if start > -1:
-            for i in range(start, start + len(row['insurance_company'])):
+            for i in range(start, start + len(insurance_company)):
                 tags[i] = 1
 
     if not row['plate'] is np.nan:
@@ -47,7 +73,8 @@ for index, row in df.iterrows():
             for i in range(start, start + len(row['customer_name'])):
                 tags[i] = 4
 
-    if not row['mobile'] is np.nan:
+    if not math.isnan(row['mobile']):
+        row['mobile'] = str(int(row['mobile']))
         start = text.find(row['mobile'])
         if start > -1:
             for i in range(start, start + len(row['mobile'])):
@@ -66,19 +93,23 @@ for index, row in df.iterrows():
                 tags[i] = 7
 
     
-    for i in range(len(list) - 1):
+    for i in range(len(words) - 1):
         name = ""
         if i == 0:
-            name = "Sentence: {}".format(index + 1)
+            name = "Sentence: {}".format(index)
 
-        tag = map[tags[i]]
+        tag = map_tag[tags[i]]
         
-        df1.append(pd.DataFrame({
+        df1 = df1.append({
             'Sentence #': name,
-            'Word': list[i],
-            'Tag': tag}))
+            'Word': words[i],
+            'Tag': tag}, ignore_index=True)
 
-    
+    if index % 100 == 0:
+        df1.to_csv('C:\\wwz\\codes\\bert\\bert\\sms\\tag.csv', mode='a', encoding='utf_8')
+        df1 = pd.DataFrame()
+        print("Generated: {}".format(index))
+
 
 
 '''text = "【人保财险】报案号：RDAA2020420100S0000858，颜廷胜，15040372337，鄂A88888，梅赛德斯-奔驰BJ7204GEL轿车，出险时间：2020-01-013日15:25:58，出险地点：武汉市黄陂区 武湖农场，出险经过：四星  擦到石墩子 本车损 无人伤 现场。请回复：0-不送修，1-送修，2-不确定."
@@ -227,4 +258,4 @@ while i < len(text):
 
     i += 1 '''
 
-print(label_cmpy)
+print(df1)
